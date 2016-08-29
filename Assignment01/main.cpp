@@ -19,12 +19,27 @@ This program does
 class XmlGenerator
 {
 private:
-    std::fstream file;
+    std::string fileName;
     std::vector<int> inputNumbers;
-public:
-    XmlGenerator (std::string fileName)
+
+    void InitFile ()
     {
-        file = std::fstream (fileName);
+        std::ofstream file (fileName.c_str());
+        if (file)
+        {
+            file << "<?xml version=\"1.1\" encoding=\"utf-8\" ?>" << std::endl;
+            file << "<assignment>";
+        }
+        else
+        {
+            std::printf ("File Not Opened!\n");
+        }
+    }
+public:
+    XmlGenerator  (std::string &file)
+    {
+        fileName = file;
+        InitFile ();
     }
 };
 
@@ -36,12 +51,15 @@ int main ()
 {
     std::cout << "--- Welcome to Travis Avey's Number Conversion Answer Generator ---" << std::endl;
 
-   
+    std::string fileName;    
     while (true)
     {
-        CreateFile ();
+        fileName = CreateFile ();
+        if (fileName != "")
+            break;
     }
     
+    auto xmlGenerator = new XmlGenerator (fileName);
 
     while (true)
     {
@@ -80,9 +98,10 @@ std::string CreateFile ()
     std::string fileName;
     std::getline (std::cin, fileName);
 
-    CheckFileName (fileName);
-    
-    return fileName;
+    if (CheckFileName (fileName))
+        return fileName;
+    else
+        return "";
 
 }
 
