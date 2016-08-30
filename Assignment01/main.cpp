@@ -4,7 +4,7 @@ CSCI 3020 Section W1
 Fall 2016
 Assignment 1
 
-Programmed on Mac OSX (El Capitan) using G++ 4.2.1
+Programmed on Mac OSX (10.11.6) using g++ 4.2.1 with flag -std=c++11
 
 This program does 
 // TODO: fill this part in
@@ -35,35 +35,54 @@ private:
             std::printf ("File Not Opened!\n");
         }
     }
+
 public:
     XmlGenerator  (std::string &file)
     {
         fileName = file;
         InitFile ();
     }
+
+    void AddNumber (int number)
+    {
+        inputNumbers.push_back (number);
+    }
+
+    void Done ()
+    {
+        for (auto i : inputNumbers)
+            std::cout << i << std::endl;
+    }
 };
 
-std::string GetInput ();
-std::string CreateFile ();
+std::string PromptInput ();
+std::string CreateFileName ();
 bool CheckFileName (std::string);
+std::string GetFile ();
+void GetInput (XmlGenerator &);
 
 int main ()
 {
     std::cout << "--- Welcome to Travis Avey's Number Conversion Answer Generator ---" << std::endl;
 
-    std::string fileName;    
-    while (true)
-    {
-        fileName = CreateFile ();
-        if (fileName != "")
-            break;
-    }
     
+    std::string fileName = GetFile ();
     auto xmlGenerator = new XmlGenerator (fileName);
 
+    GetInput (*xmlGenerator);
+    
+    xmlGenerator->Done ();
+
+    std::cout << "Finished. Data written to " << fileName << std::endl;
+
+    return EXIT_SUCCESS;
+}
+
+void GetInput (XmlGenerator &xml)
+{
     while (true)
     {
-        std::string input = GetInput ();
+        std::string input = PromptInput ();
         if (input == "DONE")
             break;
         else
@@ -73,18 +92,17 @@ int main ()
                 int number = std::stoi (input);
                 if (number < 0)
                     std::cout << "\tWARNING: " << input << " is less than 0. Will not be accepted" << std::endl;
+                else
+                    xml.AddNumber (number);
             } catch (std::invalid_argument e)
             {
                 std::cout << "\tWARNING: " << input << " cannot be converted to an integer." << std::endl;
             }
         }
     }
-
-
-    return EXIT_SUCCESS;
 }
 
-std::string GetInput ()
+std::string PromptInput ()
 {
     std::string input;
     std::cout << "Enter an inter, or DONE to stop: ";
@@ -92,7 +110,19 @@ std::string GetInput ()
     return input;
 }
 
-std::string CreateFile ()
+std::string GetFile ()
+{
+    std::string fileName;    
+    while (true)
+    {
+        fileName = CreateFileName ();
+        if (fileName != "")
+            break;
+    }
+    return fileName;
+}
+
+std::string CreateFileName ()
 {
     std::cout << "Enter the filename for the data: ";
     std::string fileName;
