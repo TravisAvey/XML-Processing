@@ -5,10 +5,22 @@ Fall 2016
 Assignment 1
 
 Programmed on Mac OSX (10.11.6) using g++ 4.2.1 with flag -std=c++11
+for example:
+macuser$ g++ main.cpp -std=c++11
 
-This program does 
-// TODO: fill this part in
+This program generates an XML file that contains number conversions.
+These conversions are decimal, binary, octal, and hexidecimal.
+It will only take in positive numbers, and 0, and will only successfully
+write an xml file if the user chooses a correct file name.
+For each number the output into the xml file will be:
+<question assign-num="1">
+    <decimal> 1 </decimal>
+    <binary> 0b1 </binary>
+    <octal> 01 </octal>
+    <hexadecimal> 0x1 </hexadecimal>
+</question>
 
+where the root of the document will be <assignment></assignment>
 ****************************/
 
 #include <iostream>
@@ -17,6 +29,10 @@ This program does
 #include <vector>
 #include <sstream>
 
+/*
+    This class handles generating an xml file and
+    parsing the numbers into binary, octal, and hexidecimal
+*/
 class XmlGenerator
 {
 private:
@@ -24,74 +40,6 @@ private:
     std::string fileName;
     // the vector to hold all the input numbers
     std::vector<int> inputNumbers;
-
-    /*
-        This method initializes the file to store the
-        data in XML format
-    */
-    void InitFile ()
-    {
-        // open the file to write
-        std::ofstream file (fileName.c_str());
-
-        // if the file is opened
-        if (file)
-        {
-            // output to the file the xml tag
-            file << "<?xml version=\"1.1\" encoding=\"utf-8\" ?>" << std::endl;
-            // write to the file the root node
-            file << "<assignment>" << std::endl;
-        }
-        else
-            // we have an issue with the file
-            FileError ();
-
-        // done with the file, close it    
-        file.close ();
-    }
-
-    /*
-        This method writes the data to the file
-    */
-    void WriteFile ()
-    {
-        // open the file in append mode
-        std::ofstream file (fileName.c_str(), std::ios::app);
-
-        // assign-num counter
-        int assignNum = 1;
-        if (file)
-        {
-            // for each number in the input number vector
-            for (auto n : inputNumbers)
-            {
-                // ouput question element with the attribute with correct value
-                file << "\t<question assign-num=\"" << assignNum++ << "\">\n";
-
-                // output the decimal
-                file << "\t\t<decimal> " << n << " </decimal>\n";
-
-                // write to the file the binary number
-                file << "\t\t<binary> " << ConvertBinary (n) << " </binary>\n";
-
-                // write to the file the octal number
-                file << "\t\t<octal> " << ConvertOctal (n) << " </octal>\n";
-
-                // write to the file the hexadecimal number
-                file << "\t\t<hexadecimal> " << ConvertHex (n) << " </hexadecimal>\n";
-
-                // output to the file the closing quesion element
-                file << "\t</question>\n";
-            }
-        }
-        else
-            // we have a issue with the file
-            FileError ();
-
-        // close the file
-        file.close ();
-    }
-
 
     /*
         This method converts the integer to a binary number,
@@ -181,39 +129,54 @@ public:
     }
 
     /*
-        This method is public interface when done inputting data
-        
-        (Possibly change this to just be the private write file method)
+        This method writes the data to the xml file when user is done
+        inputing numbers
     */
-    void Done ()
+    void WriteFile ()
     {
-        InitFile ();
-        WriteFile ();
-        
-        // open the file to write in append mode
-        std::ofstream file (fileName.c_str(), std::ios::app);
+       // open the file in append mode
+        std::ofstream file (fileName.c_str(), std::ios::out);
 
-        // if the file is opened
+        // assign-num counter
+        int assignNum = 1;
         if (file)
         {
+            // output to the file the xml tag
+            file << "<?xml version=\"1.1\" encoding=\"utf-8\" ?>" << std::endl;
+            // write to the file the root node
+            file << "<assignment>" << std::endl;
+
+            // for each number in the input number vector
+            for (auto n : inputNumbers)
+            {
+                // ouput question element with the attribute with correct value
+                file << "\t<question assign-num=\"" << assignNum++ << "\">\n";
+
+                // output the decimal
+                file << "\t\t<decimal> " << n << " </decimal>\n";
+
+                // write to the file the binary number
+                file << "\t\t<binary> " << ConvertBinary (n) << " </binary>\n";
+
+                // write to the file the octal number
+                file << "\t\t<octal> " << ConvertOctal (n) << " </octal>\n";
+
+                // write to the file the hexadecimal number
+                file << "\t\t<hexadecimal> " << ConvertHex (n) << " </hexadecimal>\n";
+
+                // output to the file the closing quesion element
+                file << "\t</question>\n";
+            }
+
             // write out to the file the closing root node
             file << "</assignment>" << std::endl;
         }
         else
+            // we have a issue with the file
             FileError ();
-        
-        // close file
-        file.close ();
-    }
 
-    /*
-        This method returns the number of items that are
-        to be converted
-    */
-    int Count() const
-    {
-        // return the count of numbers
-        return inputNumbers.size ();
+        // close the file
+        file.close ();
     }
 
     /*
@@ -228,9 +191,8 @@ public:
 
 // method declarations
 std::string PromptInput ();
-std::string CreateFileName ();
 bool CheckFileName (std::string);
-std::string GetFile ();
+std::string GetFileName ();
 void GetInput (XmlGenerator *);
 
 int main ()
@@ -239,7 +201,7 @@ int main ()
     std::cout << "--- Welcome to Travis Avey's Number Conversion Answer Generator ---" << std::endl;
 
     // get the file name from the user
-    std::string fileName = GetFile ();
+    std::string fileName = GetFileName ();
 
     // initialize a new XmlGenerator class using the file name
     auto xmlGenerator = new XmlGenerator (fileName);
@@ -261,6 +223,8 @@ int main ()
 */
 void GetInput (XmlGenerator *xml)
 {
+    // initialize a counter
+    int count = 0;
     // loop untile we break
     while (true)
     {
@@ -281,8 +245,12 @@ void GetInput (XmlGenerator *xml)
                 if (number < 0)
                     std::cout << "\tWARNING: " << input << " is less than 0. Will not be accepted" << std::endl;
                 else
+                {
                     // if number is ok, then add the number to be converted
                     xml->AddNumber (number);
+                    // increment counter
+                    count++;
+                }
             // if conversion failed, user didn't enter an int
             } catch (std::invalid_argument e)
             {
@@ -293,10 +261,10 @@ void GetInput (XmlGenerator *xml)
     }
 
     // if user inputed anything, then output message that data was written to the file
-    if (xml->Count () > 0)
+    if (count > 0)
     {
         // call method that completes and writes to file
-        xml->Done ();
+        xml->WriteFile ();
         // output message to user that writing to file is complete
         std::cout << "Finished. Data written to " << xml->GetFileName () << std::endl;
     }
@@ -305,46 +273,74 @@ void GetInput (XmlGenerator *xml)
         std::cout << "WARNING: no data to generate quiz" << std::endl;
 }
 
+/*
+    This method prompts the user for input and
+    returns that input as a string
+*/
 std::string PromptInput ()
 {
+    // declare a string for the input
     std::string input;
-    std::cout << "Enter an inter, or DONE to stop: ";
+    // prompt the user for input
+    std::cout << "Enter an integer, or DONE to stop: ";
+    // get the input store in the input string, using standard cin
     std::getline (std::cin, input);
+    // return input
     return input;
 }
 
-std::string GetFile ()
+/*
+    This method gets the file name from the user,
+    by looping until they enter a usable file name
+    and returns that file name as a string
+*/
+std::string GetFileName ()
 {
+    // decalare a string to hold the file name
     std::string fileName;    
+    // loop until we get a usable file name
     while (true)
     {
-        fileName = CreateFileName ();
-        if (fileName != "")
+        // prompt the user for the file name
+        std::cout << "Enter the filename for the data: ";
+        
+        // get the file name from the user storing in a string, using standard cin
+        std::getline (std::cin, fileName);
+
+        // check the file name, it if is ok break from loop
+        if (CheckFileName (fileName))
             break;
     }
+    // return file name
     return fileName;
 }
 
-std::string CreateFileName ()
-{
-    std::cout << "Enter the filename for the data: ";
-    std::string fileName;
-    std::getline (std::cin, fileName);
-
-    if (CheckFileName (fileName))
-        return fileName;
-    else
-        return "";
-
-}
-
+/*
+    This method checks the user input for the file name.
+    If the supplied string isn't long enough or doesn't end
+    in xml, return false, otherwise return true
+*/
 bool CheckFileName (std::string file)
 {
+    // get the size of the file name
+    int fileLen = file.length ();
+
+    if (fileLen < 5 || file.substr (fileLen -4, fileLen) != ".xml")
+    {
+        std::cout << "\tWARNING: " << file << " does not end in .xml or is not long enough\n";
+        return false;
+    }
+    else
+        return true;
+    // get the position of the string ".xml" from the paramater file
     std::size_t position = file.find (".xml");
+    // if the position is the max of size_t or if the file is less than 5
     if (position == SIZE_T_MAX || file.length () < 5)
     {
+        // then we output a warning and return false
         std::cout << "\tWARNING: " << file << "does not end in .xml or is not long enough\n";
         return false;
     }
+    // if we get to this point, the file name is ok. return true
     return true;
 }
