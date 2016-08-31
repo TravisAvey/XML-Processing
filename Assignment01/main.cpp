@@ -15,6 +15,7 @@ This program does
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 class XmlGenerator
 {
@@ -130,10 +131,18 @@ private:
 
     /*
         This method converts the number to an Octal number
+        returns a string of the Octal number
     */
     std::string ConvertOctal (const int &number)
     {
-        return "";
+        // initiallize a string stream
+        std::stringstream ss;
+        // use the string stream to create the octal number:
+        // start with a 0, then append the number as an oct to the string stream
+        ss << "0" << std::oct << number;
+
+        // return the stringstream as a string
+        return ss.str ();
     }
 
     /*
@@ -141,25 +150,27 @@ private:
     */
     std::string ConvertHex (const int &number)
     {
-        return "";
+        // intiliaze a string stream
+        std::stringstream ss;
+        // on the stringstream, start with the 0x, then append the number as a hexadecimal
+        ss << "0x" << std::hex << number;
+        // return the stingstream as a string
+        return ss.str ();
     }
 
     // Helper method to output a cerr, that something went wrong with file
     void FileError ()
     {
+        // output an error that something is wrong with the file
         std::cerr << "Something went wrong with the file!\n";
     }
 
 public:
     /*
         Public consructor.
-        variable file is the name of the file
+        sets the file name
     */
-    XmlGenerator  (const std::string &file) : fileName (file)
-    {
-        // call private method to initialize the file
-        InitFile ();
-    }
+    XmlGenerator  (const std::string &file) : fileName (file) {}
 
     /*
         Pulbic method to add the number to be converted
@@ -176,7 +187,7 @@ public:
     */
     void Done ()
     {
-
+        InitFile ();
         WriteFile ();
         
         // open the file to write in append mode
@@ -199,60 +210,99 @@ public:
         This method returns the number of items that are
         to be converted
     */
-    int Count()
+    int Count() const
     {
+        // return the count of numbers
         return inputNumbers.size ();
+    }
+
+    /*
+        This method returns the file name
+    */
+    std::string GetFileName () const
+    {
+        // returns the file name
+        return fileName;
     }
 };
 
+// method declarations
 std::string PromptInput ();
 std::string CreateFileName ();
 bool CheckFileName (std::string);
 std::string GetFile ();
-void GetInput (XmlGenerator &);
+void GetInput (XmlGenerator *);
 
 int main ()
 {
+    // output the title of the program
     std::cout << "--- Welcome to Travis Avey's Number Conversion Answer Generator ---" << std::endl;
 
+    // get the file name from the user
     std::string fileName = GetFile ();
 
+    // initialize a new XmlGenerator class using the file name
     auto xmlGenerator = new XmlGenerator (fileName);
 
-    GetInput (*xmlGenerator);
+    // get input from the user for the numbers
+    GetInput (xmlGenerator);
     
-    xmlGenerator->Done ();
+    // done with xmlGenerator, delete it
+    delete xmlGenerator;
 
-    if (xmlGenerator->Count () > 0)
-        std::cout << "Finished. Data written to " << fileName << std::endl;
-    else
-        std::cout << "WARNING: no data to generate quiz" << std::endl;
-
-    return EXIT_SUCCESS;
+    return 0;
 }
 
-void GetInput (XmlGenerator &xml)
+/*
+    This method Gets input from the user for the numbers
+    that will be converted
+
+    Pass in a pointer to the XmlGenerator object
+*/
+void GetInput (XmlGenerator *xml)
 {
+    // loop untile we break
     while (true)
     {
+        // get the input
         std::string input = PromptInput ();
+
+        // if user input DONE, break
         if (input == "DONE")
             break;
         else
         {
+            // use a try/catch block to convert the input to an int
             try
             {
+                // try to convert the string to an int
                 int number = std::stoi (input);
+                // if number is less than 0, output warnging and skip this input
                 if (number < 0)
                     std::cout << "\tWARNING: " << input << " is less than 0. Will not be accepted" << std::endl;
                 else
-                    xml.AddNumber (number);
+                    // if number is ok, then add the number to be converted
+                    xml->AddNumber (number);
+            // if conversion failed, user didn't enter an int
             } catch (std::invalid_argument e)
             {
+                // output warning that this input will not be accepted
                 std::cout << "\tWARNING: " << input << " cannot be converted to an integer." << std::endl;
             }
         }
     }
+
+    // if user inputed anything, then output message that data was written to the file
+    if (xml->Count () > 0)
+    {
+        // call method that completes and writes to file
+        xml->Done ();
+        // output message to user that writing to file is complete
+        std::cout << "Finished. Data written to " << xml->GetFileName () << std::endl;
+    }
+    else
+        // else, user didn't enter anything so output warning
+        std::cout << "WARNING: no data to generate quiz" << std::endl;
 }
 
 std::string PromptInput ()
