@@ -139,6 +139,8 @@ public:
 
         // assign-num counter
         int assignNum = 1;
+
+        // if the file is opened
         if (file)
         {
             // output to the file the xml tag
@@ -325,22 +327,15 @@ bool CheckFileName (std::string file)
     // get the size of the file name
     int fileLen = file.length ();
 
+    // if the file name is less than 5 chars long, or the last 4 chars aren't ".xml"
     if (fileLen < 5 || file.substr (fileLen -4, fileLen) != ".xml")
     {
+        // printout out a warning and return false
         std::cout << "\tWARNING: " << file << " does not end in .xml or is not long enough\n";
         return false;
     }
     else
+        // the file name is 5 or chars longer and ends in ".xml", return true
         return true;
-    // get the position of the string ".xml" from the paramater file
-    std::size_t position = file.find (".xml");
-    // if the position is the max of size_t or if the file is less than 5
-    if (position == SIZE_T_MAX || file.length () < 5)
-    {
-        // then we output a warning and return false
-        std::cout << "\tWARNING: " << file << "does not end in .xml or is not long enough\n";
-        return false;
-    }
-    // if we get to this point, the file name is ok. return true
-    return true;
+
 }
