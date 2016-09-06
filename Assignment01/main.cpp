@@ -145,7 +145,7 @@ public:
         if (file)
         {
             // output to the file the xml tag
-            file << "<?xml version=\"1.1\" encoding=\"utf-8\" ?>" << std::endl;
+            file << "<?xml version=\"1.1\" encoding=\"utf-8\"?>" << std::endl;
             // write to the file the root node
             file << "<assignment>" << std::endl;
 
@@ -201,16 +201,18 @@ void GetInput (XmlGenerator *);
 int main ()
 {
     // output the title of the program
-    std::cout << "--- Welcome to Travis Avey's Number Conversion Answer Generator ---" << std::endl;
+    std::cout << "--- Welcome to Travis Avey's Number Conversion Answer Generator ---\n\n";
 
     // get the file name from the user
     std::string fileName = GetFileName ();
+    std::cout << std::endl;
 
     // initialize a new XmlGenerator class using the file name
     auto xmlGenerator = new XmlGenerator (fileName);
 
     // get input from the user for the numbers
     GetInput (xmlGenerator);
+    std::cout << std::endl;
     
     // done with xmlGenerator, delete it
     delete xmlGenerator;
@@ -246,7 +248,7 @@ void GetInput (XmlGenerator *xml)
                 int number = std::stoi (input);
                 // if number is less than 0, output warnging and skip this input
                 if (number < 0)
-                    std::cout << "\tWARNING: " << input << " is less than 0. Will not be accepted" << std::endl;
+                    std::cout << "\tWARNING: " << input << " is less than 0. Will not be accepted\n\n";
                 else
                 {
                     // if number is ok, then add the number to be converted
@@ -258,7 +260,7 @@ void GetInput (XmlGenerator *xml)
             } catch (std::invalid_argument e)
             {
                 // output warning that this input will not be accepted
-                std::cout << "\tWARNING: " << input << " cannot be converted to an integer." << std::endl;
+                std::cout << "\tWARNING: " << input << " cannot be converted to an integer.\n\n";
             }
         }
     }
