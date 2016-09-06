@@ -28,6 +28,7 @@ where the root of the document will be <assignment></assignment>
 #include <string>
 #include <vector>
 #include <sstream>
+#include <bitset>
 
 /*
     This class handles generating an xml file and
