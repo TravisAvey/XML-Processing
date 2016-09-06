@@ -42,77 +42,11 @@ private:
     // the vector to hold all the input numbers
     std::vector<int> inputNumbers;
 
-    /*
-        This method converts the integer to a binary number,
-        returns the value as a string.
-
-        Format: 0b1001, removes all leading 0s
-    */
-    std::string ConvertBinary (const int &number)
-    {
-        // if the number is 0, short circuit and just return 0b0
-        if (number == 0)
-            return "0b0";
-        
-        // init a string to hold the binary value
-        std::string binary = "0b";
-        
-        // get the binary number and store as a string
-        std::string binStr = std::bitset<16> (number).to_string ();
-        
-        // declare the index i
-        int i;
-        // loop through the binary string
-        for (i = 0; i<binStr.length (); ++i)
-        {
-            // find the first 1
-            if (binStr[i] == '1')
-                break;
-        }
-        
-        // from the i position to the end, append the 1s and 0s to the binary string
-        for (int j = i; j<binStr.length (); ++j)
-            binary += binStr[j];
-        
-        // return the binary string
-        return binary;
-    }
-
-    /*
-        This method converts the number to an Octal number
-        returns a string of the Octal number
-    */
-    std::string ConvertOctal (const int &number)
-    {
-        // initiallize a string stream
-        std::stringstream ss;
-        // use the string stream to create the octal number:
-        // start with a 0, then append the number as an oct to the string stream
-        ss << "0" << std::oct << number;
-
-        // return the stringstream as a string
-        return ss.str ();
-    }
-
-    /*
-        This method converts the number to a hexadecimal number
-    */
-    std::string ConvertHex (const int &number)
-    {
-        // intiliaze a string stream
-        std::stringstream ss;
-        // on the stringstream, start with the 0x, then append the number as a hexadecimal
-        ss << "0x" << std::hex << number;
-        // return the stingstream as a string
-        return ss.str ();
-    }
-
-    // Helper method to output a cerr, that something went wrong with file
-    void FileError ()
-    {
-        // output an error that something is wrong with the file
-        std::cerr << "Something went wrong with the file!\n";
-    }
+    // Private helper methods
+    std::string ConvertBinary (const int &number);
+    std::string ConvertOctal (const int &number);
+    std::string ConvertHex (const int &number);
+    void FileError ();
 
 public:
     /*
@@ -121,76 +55,153 @@ public:
     */
     XmlGenerator  (const std::string &file) : fileName (file) {}
 
-    /*
-        Pulbic method to add the number to be converted
-    */
-    void AddNumber (int number)
-    {
-        inputNumbers.push_back (number);
-    }
-
-    /*
-        This method writes the data to the xml file when user is done
-        inputing numbers
-    */
-    void WriteFile ()
-    {
-       // open the file in append mode
-        std::ofstream file (fileName.c_str(), std::ios::out);
-
-        // assign-num counter
-        int assignNum = 1;
-
-        // if the file is opened
-        if (file)
-        {
-            // output to the file the xml tag
-            file << "<?xml version=\"1.1\" encoding=\"utf-8\"?>" << std::endl;
-            // write to the file the root node
-            file << "<assignment>" << std::endl;
-
-            // for each number in the input number vector
-            for (auto n : inputNumbers)
-            {
-                // ouput question element with the attribute with correct value
-                file << "\t<question assign-num=\"" << assignNum++ << "\">\n";
-
-                // output the decimal
-                file << "\t\t<decimal> " << n << " </decimal>\n";
-
-                // write to the file the binary number
-                file << "\t\t<binary> " << ConvertBinary (n) << " </binary>\n";
-
-                // write to the file the octal number
-                file << "\t\t<octal> " << ConvertOctal (n) << " </octal>\n";
-
-                // write to the file the hexadecimal number
-                file << "\t\t<hexadecimal> " << ConvertHex (n) << " </hexadecimal>\n";
-
-                // output to the file the closing quesion element
-                file << "\t</question>\n";
-            }
-
-            // write out to the file the closing root node
-            file << "</assignment>" << std::endl;
-        }
-        else
-            // we have a issue with the file
-            FileError ();
-
-        // close the file
-        file.close ();
-    }
-
-    /*
-        This method returns the file name
-    */
-    std::string GetFileName () const
-    {
-        // returns the file name
-        return fileName;
-    }
+    // public methods
+    void AddNumber (int number);
+    void WriteFile ();
+    std::string GetFileName () const;
 };
+
+/*
+    This method converts the integer to a binary number,
+    returns the value as a string.
+
+    Format: 0b1001, removes all leading 0s
+*/
+std::string XmlGenerator::ConvertBinary (const int &number)
+{
+    // if the number is 0, short circuit and just return 0b0
+    if (number == 0)
+        return "0b0";
+    
+    // init a string to hold the binary value
+    std::string binary = "0b";
+    
+    // get the binary number and store as a string
+    std::string binStr = std::bitset<16> (number).to_string ();
+    
+    // declare the index i
+    int i;
+    // loop through the binary string
+    for (i = 0; i<binStr.length (); ++i)
+    {
+        // find the first 1
+        if (binStr[i] == '1')
+            break;
+    }
+    
+    // from the i position to the end, append the 1s and 0s to the binary string
+    for (int j = i; j<binStr.length (); ++j)
+        binary += binStr[j];
+    
+    // return the binary string
+    return binary;
+}
+
+/*
+    This method converts the number to an Octal number
+    returns a string of the Octal number
+*/
+std::string XmlGenerator::ConvertOctal (const int &number)
+{
+    // initiallize a string stream
+    std::stringstream ss;
+    // use the string stream to create the octal number:
+    // start with a 0, then append the number as an oct to the string stream
+    ss << "0" << std::oct << number;
+
+    // return the stringstream as a string
+    return ss.str ();
+}
+
+/*
+    This method converts the number to a hexadecimal number
+*/
+std::string XmlGenerator::ConvertHex (const int &number)
+{
+    // intiliaze a string stream
+    std::stringstream ss;
+    // on the stringstream, start with the 0x, then append the number as a hexadecimal
+    ss << "0x" << std::hex << number;
+    // return the stingstream as a string
+    return ss.str ();
+}
+
+// Helper method to output a cerr, that something went wrong with file
+void XmlGenerator::FileError ()
+{
+    // output an error that something is wrong with the file
+    std::cerr << "Something went wrong with the file!\n";
+}
+
+/*
+    Pulbic method to add the number to be converted
+*/
+void XmlGenerator::AddNumber (int number)
+{
+    inputNumbers.push_back (number);
+}
+
+/*
+    This method writes the data to the xml file when user is done
+    inputing numbers
+*/
+void XmlGenerator::WriteFile ()
+{
+    // open the file with the file name 
+    std::ofstream file (fileName.c_str());
+
+    // assign-num counter
+    int assignNum = 1;
+
+    // if the file is opened
+    if (file)
+    {
+        // output to the file the xml tag
+        file << "<?xml version=\"1.1\" encoding=\"UTF-8\"?>" << std::endl;
+        // write to the file the root node
+        file << "<assignment>" << std::endl;
+
+        // for each number in the input number vector
+        for (auto n : inputNumbers)
+        {
+            // ouput question element with the attribute with correct value
+            file << "\t<question assign-num=\"" << assignNum++ << "\">\n";
+
+            // output the decimal
+            file << "\t\t<decimal> " << n << " </decimal>\n";
+
+            // write to the file the binary number
+            file << "\t\t<binary> " << ConvertBinary (n) << " </binary>\n";
+
+            // write to the file the octal number
+            file << "\t\t<octal> " << ConvertOctal (n) << " </octal>\n";
+
+            // write to the file the hexadecimal number
+            file << "\t\t<hexadecimal> " << ConvertHex (n) << " </hexadecimal>\n";
+
+            // output to the file the closing quesion element
+            file << "\t</question>\n";
+        }
+
+        // write out to the file the closing root node
+        file << "</assignment>" << std::endl;
+    }
+    else
+        // we have a issue with the file
+        FileError ();
+
+    // close the file
+    file.close ();
+}
+
+/*
+    This method returns the file name
+*/
+std::string XmlGenerator::GetFileName () const
+{
+    // returns the file name
+    return fileName;
+}
 
 // method declarations
 std::string PromptInput ();
@@ -205,14 +216,12 @@ int main ()
 
     // get the file name from the user
     std::string fileName = GetFileName ();
-    std::cout << std::endl;
 
     // initialize a new XmlGenerator class using the file name
     auto xmlGenerator = new XmlGenerator (fileName);
 
     // get input from the user for the numbers
     GetInput (xmlGenerator);
-    std::cout << std::endl;
     
     // done with xmlGenerator, delete it
     delete xmlGenerator;
@@ -276,6 +285,8 @@ void GetInput (XmlGenerator *xml)
     else
         // else, user didn't enter anything so output warning
         std::cout << "WARNING: no data to generate quiz" << std::endl;
+    
+    std::cout << std::endl;
 }
 
 /*
@@ -316,6 +327,8 @@ std::string GetFileName ()
         if (CheckFileName (fileName))
             break;
     }
+    std::cout << std::endl;
+
     // return file name
     return fileName;
 }
