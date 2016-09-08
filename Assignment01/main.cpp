@@ -157,7 +157,7 @@ void XmlGenerator::WriteFile ()
     if (file)
     {
         // output to the file the xml tag
-        file << "<?xml version=\"1.1\" encoding=\"UTF-8\"?>" << std::endl;
+        file << "<?xml version=\"1.1\" encoding=\"utf-8\" ?>" << std::endl;
         // write to the file the root node
         file << "<assignment>" << std::endl;
 
