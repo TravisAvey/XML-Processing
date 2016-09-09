@@ -28,7 +28,7 @@ string GetFileName ();
 vector<string> OpenFile ();
 void ConvertToXML (const vector<string> &);
 string GetXMLFileName ();
-
+void ParseData (const vector<string> &);
 
 int main ()
 {
@@ -185,5 +185,11 @@ string GetXMLFileName ()
 
     // return the file string
     return file;
+
+}
+
+void ParseData (const vector<string> &data)
+{
+
 
 }
