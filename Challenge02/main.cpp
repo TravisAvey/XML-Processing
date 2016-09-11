@@ -15,6 +15,7 @@ This program does ...
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 // declare std namespace for most commonly
 using std::cout;
@@ -28,7 +29,8 @@ string GetFileName ();
 vector<string> OpenFile ();
 void ConvertToXML (const vector<string> &);
 string GetXMLFileName ();
-void ParseData (const vector<string> &);
+void ParseData (const vector<string> &, int &);
+vector<string> ParseInfo (string &);
 
 int main ()
 {
@@ -132,6 +134,8 @@ void ConvertToXML (const vector<string> &data)
     // Get the XML file name from the user
     string xmlFile = GetXMLFileName ();
 
+    int i = 0, j = 0;
+
     // open the xml file, with write mode
     std::fstream file (xmlFile.c_str (), std::ios::out);
 
@@ -151,11 +155,39 @@ void ConvertToXML (const vector<string> &data)
         file << "<accounts>\n";
 
         // TODO: call a method to parse the data
+        do
+        {
+            file << "\t<account>\n";
 
+            ParseData (data, j);
+
+            // take the line i and output the manager and location info
+            string line = data[i];
+            auto info = ParseInfo (line);
+            file << "\t\t<manager employeeId=\"" << info[1] << "\" mId=\"" << info[0] << "\">\n";
+            file << "\t\t\t<lastName>" << info[2] << "</lastName>\n";
+            file << "\t\t\t<firstName>" << info[3] << "</firstName>\n";
+            file << "\t\t</manager>\n";
+            file << "\t\t<location>\n";
+            file << "\t\t\t<city>" << info[4] << "</city>\n";
+            file << "\t\t\t<state>" << info[5] << "</state>\n";
+            file << "\t\t</location>\n";
+
+            // take line i+1 to j (not including) and output the companies
+
+            file << "\t</account>\n";
+
+            // set i and j to next line and continue loop, unless end of data
+            i = ++j;
+        } while (j < data.size ());
+
+        file << "</accounts>\n";
     }
 
     // close the file
     file.close ();
+
+    
 }
 
 
@@ -188,8 +220,47 @@ string GetXMLFileName ()
 
 }
 
-void ParseData (const vector<string> &data)
+void ParseData (const vector<string> &data, int &j)
 {
+    while (true)
+    {
+        string line = data[j];
 
+        if (line.find("--END_MANAGER_DATA--") != string::npos)
+            break;
+        
+        j++;
+    }
+}
 
+/*
+    This method parses the admin data of the account
+
+    returns a vector of strings:
+    0 : mId
+    1 : employeeId
+    2 : lastName
+    3 : firstName
+    4 : city
+    5 : state
+*/
+vector<string> ParseInfo (string &info)
+{
+    vector<string> data;
+    
+
+    // mId will always be the first in the line
+    data.push_back (info.substr(0,1));
+
+    // the rest of the data is split by an empty space
+    auto pos = info.find(' ', 0);
+    info = info.substr(pos+1);
+    
+    std::stringstream ss(info);
+    string line;
+
+    while (std::getline(ss, line, ' '))
+        data.push_back (line);
+
+    return data;
 }
