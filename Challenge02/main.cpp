@@ -31,6 +31,7 @@ void ConvertToXML (const vector<string> &);
 string GetXMLFileName ();
 void ParseData (const vector<string> &, int &);
 vector<string> ParseInfo (string &);
+void SplitString(string &, char);
 
 int main ()
 {
@@ -142,28 +143,35 @@ void ConvertToXML (const vector<string> &data)
     // if file is opened
     if (file)
     {
-        // ouput the xml 
-        file << "<? xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
-        // output the comment
+        cout << "Writing to " << xmlFile <<  ".\n";
+
+        // write the xml 
+        file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
+        // write the comment
         file << "<!--\n";
         file << "\tXML Converter by\n";
         file << "\tWe-Code-Stuff, LLC\n";
         file << "\tDeveloper: Travis Avey\n";
         file << "-->\n\n";
 
-        // output the root document node
+        // write the root document node
         file << "<accounts>\n";
 
         // TODO: call a method to parse the data
         do
         {
+            // open the account tag
             file << "\t<account>\n";
 
+            // parse the data and get the location of the end manager data
             ParseData (data, j);
 
-            // take the line i and output the manager and location info
-            string line = data[i];
+            // get the first line of this data set, which will be the manager and location data
+            string line = data[i++];
+            // parse the manager data
             auto info = ParseInfo (line);
+
+            // write the manager and location data
             file << "\t\t<manager employeeId=\"" << info[1] << "\" mId=\"" << info[0] << "\">\n";
             file << "\t\t\t<lastName>" << info[2] << "</lastName>\n";
             file << "\t\t\t<firstName>" << info[3] << "</firstName>\n";
@@ -173,23 +181,39 @@ void ConvertToXML (const vector<string> &data)
             file << "\t\t\t<state>" << info[5] << "</state>\n";
             file << "\t\t</location>\n";
 
-            // take line i+1 to j (not including) and output the companies
+            // the company count will be line j - line i
+            file << "\t\t<companies count=\"" << j-i << "\">\n";
 
+            // take line i+1 to j (not including) and output the companies
+            for (; i<j; ++i)
+            {
+                // get the company
+                string company = data[i];
+                
+                // split the company on an empty character
+                SplitString (company, ' ');
+
+                // output the company
+                file << "\t\t\t<company>" << company << "</company>\n";
+            }
+            // close the companies tag
+            file << "\t\t</companies>\n";
+
+            // close the account tag
             file << "\t</account>\n";
 
             // set i and j to next line and continue loop, unless end of data
             i = ++j;
         } while (j < data.size ());
 
+        // cloase the accounts tag
         file << "</accounts>\n";
     }
 
     // close the file
     file.close ();
-
-    
+    cout << "Done.\n";
 }
-
 
 /*
     This method gets the XML file name
@@ -220,15 +244,23 @@ string GetXMLFileName ()
 
 }
 
+/*
+    This method Parses the data, it finds the first line where
+    the --END_MANAGER_DATA-- appears.  It will update the counter
+    to this location.
+*/
 void ParseData (const vector<string> &data, int &j)
 {
+    // keep looping
     while (true)
     {
+        // get the current line
         string line = data[j];
 
+        // if the line is the end of the manager data, break
         if (line.find("--END_MANAGER_DATA--") != string::npos)
             break;
-        
+        // increment to next line
         j++;
     }
 }
@@ -246,6 +278,7 @@ void ParseData (const vector<string> &data, int &j)
 */
 vector<string> ParseInfo (string &info)
 {
+    // declare a vector of strings to hold the data
     vector<string> data;
     
 
@@ -253,14 +286,31 @@ vector<string> ParseInfo (string &info)
     data.push_back (info.substr(0,1));
 
     // the rest of the data is split by an empty space
-    auto pos = info.find(' ', 0);
-    info = info.substr(pos+1);
+    //auto pos = info.find(' ', 0);
+    //info = info.substr(pos+1);
+    SplitString (info, ' ');
     
+    // initialize a string stream on the info
     std::stringstream ss(info);
-    string line;
+    // declare a string to hold the token
+    string token;
 
-    while (std::getline(ss, line, ' '))
-        data.push_back (line);
+    // while we can get a token by a delimeter of a space
+    while (std::getline(ss, token, ' '))
+        // add that token to the vector
+        data.push_back (token);
 
+    // return the parsed info
     return data;
+}
+
+/*
+    This helper method splits the string on the delimeter
+*/
+void SplitString (string &str, char delimeter)
+{
+    // find the position of the delimeter
+    auto position = str.find(delimeter, 0);
+    // change the string to be from that position +1 to the end
+    str = str.substr (position+1);
 }
