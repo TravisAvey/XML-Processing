@@ -8,7 +8,10 @@ Programmed on Mac OSX (10.11.6) using g++ 4.2.1 with flag -std=c++11
 for example:
 macuser$ g++ main.cpp -std=c++11
 
-This program does ...
+This program converts old records that are in a text format to
+an XML format.  This program accepts data files in the text format,
+then parses all the data in the text file, then writes out to an xml
+file of the users choosing.  
 *******************************/
 
 #include <iostream>
@@ -151,13 +154,13 @@ void ConvertToXML (const vector<string> &data)
         cout << "Writing to " << xmlFile <<  "\n\n";
 
         // write the xml 
-        file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
+        file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         // write the comment
         file << "<!--\n";
         file << "\tXML Converter by\n";
         file << "\tWe-Code-Stuff, LLC\n";
         file << "\tDeveloper: Travis Avey\n";
-        file << "-->\n\n";
+        file << "-->\n";
 
         // write the root document node
         file << "<accounts>\n";
@@ -217,7 +220,7 @@ void ConvertToXML (const vector<string> &data)
     // close the file
     file.close ();
     // inform the user writing is completed
-    cout << "Done writing the XML file.\n";
+    cout << "Done writing to " << xmlFile << endl;
 }
 
 /*
@@ -249,10 +252,20 @@ string GetXMLFileName ()
         break;
     }
 
-        // if the file name doesn't end in 'xml', append to the end of the string
+        // if user accidently a file name starting with .
+        if (file[0] == '.')
+            // set the file name, removing the first char 
+            file = file.substr (1);
+        
+        // if the file name doesn't end in 'xml', append to the end of the string:
 
-        // TODO: error is here out of range.. if file name is a for instance.. 
-        if (file.substr(file.length() - 4, file.length()) != ".xml")
+        // get the length of the file name
+        auto length = file.length ();
+
+        // short circuit the length first
+        // if less than 4, then filename cant end in .xml, or if the last 4 chars aren't '.xml'
+        if (length <= 4 || file.substr(length - 4, length) != ".xml")
+            // append .xml to the file name
             file += ".xml";
 
     cout << endl;
@@ -303,9 +316,8 @@ vector<string> ParseInfo (string &info)
     // mId will always be the first in the line
     data.push_back (info.substr(0,1));
 
-    // the rest of the data is split by an empty space
-    //auto pos = info.find(' ', 0);
-    //info = info.substr(pos+1);
+    // the rest of the data is split by an empty space,
+    // call method that splits the info string
     SplitString (info, ' ');
     
     // initialize a string stream on the info
