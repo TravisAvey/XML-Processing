@@ -93,8 +93,9 @@ string GetFileName ()
             break;
         // else we output a warning that the file can't be opened
         else
-            cout << "\tWARNING: the file " << fileName << " cannot be opened." << endl << endl;
+            cout << "\tWARNING: the file " << fileName << " cannot be opened." << endl;
     }
+    cout << endl;
 
     // return the file name
     return fileName;
@@ -135,6 +136,9 @@ void ConvertToXML (const vector<string> &data)
     // Get the XML file name from the user
     string xmlFile = GetXMLFileName ();
 
+    // initialize line counters to keep track of where the manager data
+    // is, where the end manager data line is, and where the companies data
+    // is located
     int i = 0, j = 0;
 
     // open the xml file, with write mode
@@ -143,7 +147,8 @@ void ConvertToXML (const vector<string> &data)
     // if file is opened
     if (file)
     {
-        cout << "Writing to " << xmlFile <<  ".\n";
+        // tell user we are writing to the file
+        cout << "Writing to " << xmlFile <<  "\n\n";
 
         // write the xml 
         file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
@@ -157,7 +162,6 @@ void ConvertToXML (const vector<string> &data)
         // write the root document node
         file << "<accounts>\n";
 
-        // TODO: call a method to parse the data
         do
         {
             // open the account tag
@@ -212,7 +216,8 @@ void ConvertToXML (const vector<string> &data)
 
     // close the file
     file.close ();
-    cout << "Done.\n";
+    // inform the user writing is completed
+    cout << "Done writing the XML file.\n";
 }
 
 /*
@@ -225,19 +230,32 @@ string GetXMLFileName ()
     // declare a string to hold the file name
     string file;
 
-    // prompt user for the XML file name
-    cout << "Please enter the XML file name: ";
-    // get the line from standard cin passing to the string 
-    getline (std::cin, file);
-    // output new lines
-    cout << endl << endl;
+    while (true)
+    {
+        // prompt user for the XML file name
+        cout << "Please enter the XML file name: ";
+        
+        try
+        {
+            // get the line from standard cin passing to the string 
+            getline (std::cin, file);
+            
+        }
+        catch (const std::exception &e)
+        {
+            cout << "\tWARNING: file name not acceptable\n\n";
+            continue;
+        }
+        break;
+    }
 
-    // if the file name doesn't end in 'xml', append to the end of the string
-    if (file.substr(file.length() - 4, file.length()) != ".xml")
-        file += ".xml";
-    
-    // debug file name out
-    cout << file << endl;
+        // if the file name doesn't end in 'xml', append to the end of the string
+
+        // TODO: error is here out of range.. if file name is a for instance.. 
+        if (file.substr(file.length() - 4, file.length()) != ".xml")
+            file += ".xml";
+
+    cout << endl;
 
     // return the file string
     return file;
