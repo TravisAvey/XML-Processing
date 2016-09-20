@@ -13,6 +13,7 @@ This program ...
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <sstream>
 
 
@@ -23,16 +24,29 @@ class ConvertXML
 {
 private:
     // Private member variables
+
+    // the raw data from the file 
     std::vector<std::string> mRawData;
+    // the list of countries already inputed in the XML file
+    std::vector<std::string> mCountries;
+
+    std::map<std::string, std::vector<std::string> > mData;
+
+    // the input file name
     std::string mInputFile;
+    // the XML file name
     std::string mXmlFile;
+    // the separator for the csv file
+    char separator;
 
     // private helper classes
-    char separator;
     void GetDataFromCSV ();
     void GetSeparator ();
     void GetXMLFile ();
     void WriteXML ();
+    void ExtractData ();
+
+    bool CountryExists (const std::string &);
 
 public:
     // constructor
@@ -43,12 +57,12 @@ public:
 
 };
 
-bool GoodInputFile (std::string &);
+bool IsGoodInputFile (std::string &);
 
 int main ()
 {
     std::string fileName;
-    if (GoodInputFile (fileName))
+    if (IsGoodInputFile (fileName))
     {
         ConvertXML convert (fileName);
     
@@ -57,7 +71,7 @@ int main ()
     return 0;
 }
 
-bool GoodInputFile (std::string &inputFile)
+bool IsGoodInputFile (std::string &inputFile)
 {
     // prompt user for the CSV file
     std::cout << "Enter the CSV file to be converted to XML: ";
@@ -92,6 +106,7 @@ void ConvertXML::Convert ()
     GetDataFromCSV ();
     GetSeparator ();
     GetXMLFile ();
+    ExtractData ();
     WriteXML ();
 }
 
@@ -187,16 +202,60 @@ void ConvertXML::WriteXML ()
 
         xmlFile << "<countries>\n";
 
-        for (auto data : mRawData)
-        {
-            std::stringstream ss (data);
-            std::string token;
 
-            while (std::getline (ss, token, separator))
-                std::cout << token << std::endl;
-        }
+        for (const auto &data : mData)
+        {
+            std::string country = data.first;
+            xmlFile << "\t<country>\n";
+
+            xmlFile << "\t\t<name>" << mData[country][0] << "</name>\n";
+            xmlFile << "\t\t<region>" << mData[country][1] << "</region>\n";
+            xmlFile << "\t\t<code>" << mData[country][2] << "</code>\n"; 
+            
+            // loop from 3 to end of this list
+            for (int i=3; i<mData[country].size (); ++i)
+            {
+                xmlFile << "\t\t\t<>" << mData[country][i] << "</>\n";
+            }
+
+            xmlFile << "\t</country>\n";
+        }   
 
         xmlFile << "</countries>\n";
 
+    }
+}
+
+bool ConvertXML::CountryExists (const std::string &data)
+{
+    return mData.find (data) == mData.end() ? false : true;
+}
+
+void ConvertXML::ExtractData ()
+{
+    for (auto data : mRawData)
+    {
+        std::stringstream ss (data);
+        std::string token;
+        std::vector<std::string> line;
+        while (std::getline (ss, token, separator))
+            line.push_back (token);
+
+        // data is for each line:
+        /*
+            0 : Country
+            1 : Region
+            2 : Code
+            3 : City
+            4 : District
+            5 : Population
+        */
+        std::string currentCountry = line[0];
+        
+        if (!CountryExists (currentCountry))
+            mData[currentCountry] = line;
+        else
+            for (int i=3; i<=5; ++i)
+                mData[currentCountry].push_back (line[i]);
     }
 }
