@@ -48,6 +48,7 @@ private:
     void WriteXML ();
     void ExtractData ();
     bool CountryExists (const std::string &);
+    void Validate (std::string &);
 
 public:
     // constructor
@@ -232,59 +233,76 @@ void ConvertXML::WriteXML ()
     // open the xml file for writing
     std::fstream xmlFile (mXmlFile.c_str(), std::ios::out);
 
-    // set the locale to the machine's locale for numbers
-    xmlFile.imbue(std::locale(""));
     // if the xml file is opened
     if (xmlFile)
     {
+        // set the locale to the machine's locale for number formatting
+        xmlFile.imbue(std::locale(""));
+
         // inform user we are writing to the XML file
         std::cout << "Wrting XML file\n";
 
-        // write the xml
+        // write the xml prolog
         xmlFile << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
         // write the comment
         xmlFile << "<!-- Processed by Travis Avey's converter -->\n";
 
-        // write out the root tag
-        xmlFile << "<countries>\n";
+        // write out the root tag, including the namespaces
+        xmlFile << "<countries" <<
+            "\n\txmlns:country=\"http://library.smalltown.usa/country\"" <<
+            "\n\txmlns:city=\"http://library.smalltown.usa/city\">\n";
+        
+        // init the namespace values for country and city
+        auto countryNS  = "country";
+        auto cityNS     = "city";
 
         // for each country in the data map
         for (const auto &data : mData)
         {
             // store the country from the map
-            std::string country = data.first;
-
+            auto country = data.first;
+            auto name    = mData[country][0];
+            auto region  = mData[country][1];
+            auto code    = mData[country][2];
             // write the country tag
-            xmlFile << "\t<country>\n";
+            xmlFile << "\t<" << countryNS << ":country>\n";
 
             // write the country name, region, and code
-            xmlFile << "\t\t<name>" << mData[country][0] << "</name>\n";
-            xmlFile << "\t\t<region>" << mData[country][1] << "</region>\n";
-            xmlFile << "\t\t<code>" << mData[country][2] << "</code>\n"; 
+            xmlFile << "\t\t<" << countryNS << ":name>" << name << "</" << countryNS <<":name>\n";
+            xmlFile << "\t\t<" << countryNS << ":region>" << region << "</" << countryNS << ":region>\n";
+            xmlFile << "\t\t<" << countryNS << ":code>" << code << "</" << countryNS << ":code>\n"; 
 
             // write the cities opening tag
-            xmlFile << "\t\t<cities>\n";
+            xmlFile << "\t\t<" << countryNS << ":cities>\n";
 
             // init a counter, start at 3 for the city information
             int i = 3;
             // loop through the rest of the country data
             while (i <mData[country].size ())
             {
+                // store the city, district, and population for the current city
+                auto city       = mData[country][i++];
+                auto district   = mData[country][i++];
+                auto population = std::stoi (mData[country][i++]);
+                // validate the city && district
+                Validate (city);
+                Validate (district);
+
                 // write out the city opening tag
-                xmlFile << "\t\t\t<city>\n";
-                // write out the city name, district, and population (using string to int for commas)
-                xmlFile << "\t\t\t\t<name>" << mData[country][i++] << "</name>\n";
-                xmlFile << "\t\t\t\t<district>" << mData[country][i++] << "</district>\n";
-                xmlFile << "\t\t\t\t<population>" << std::stoi(mData[country][i++]) << "</population>\n";
+                xmlFile << "\t\t\t<" << cityNS << ":city>\n";
+                // write out the city name, district, and population
+                xmlFile << "\t\t\t\t<" << cityNS << ":name>" << city << "</" << cityNS << ":name>\n";
+                xmlFile << "\t\t\t\t<" << cityNS << ":district>" << district << "</" << cityNS << ":district>\n";
+                xmlFile << "\t\t\t\t<" << cityNS << ":population>" << population << "</" << cityNS << ":population>\n";
 
                 // write out the city closing tag
-                xmlFile << "\t\t\t</city>\n";
+                xmlFile << "\t\t\t</" << cityNS << ":city>\n";
             }
             // close cities tag
-            xmlFile << "\t\t</cities>\n"; 
+            xmlFile << "\t\t</" << countryNS << ":cities>\n"; 
             // close the country tag
-            xmlFile << "\t</country>\n";
+            xmlFile << "\t</" << countryNS << ":country>\n";
         }   
         // close the countries tag
         xmlFile << "</countries>\n";
@@ -347,3 +365,23 @@ void ConvertXML::ExtractData ()
                 mData[currentCountry].push_back (line[i]);
     }
 }
+
+/*
+    This method Validates the string for XML.  It finds and
+    replaces all '&'
+*/
+void ConvertXML::Validate (std::string &line)
+{
+    // init a location variable
+    auto loc = 0;
+
+    // while we can find an '&' in the string
+    while ( (loc = line.find('&', loc)) != std::string::npos)
+    {
+        // set the line to replacing the '&' with xml equivalent
+        line = line.replace (loc, 1, "&amp;");
+        // increment loc to avoid a endless loop
+        loc++;
+    }
+}
+
