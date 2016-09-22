@@ -8,7 +8,13 @@ Programmed on Mac OSX (10.11.6) using g++ 4.2.1 with flag -std=c++11
 for example:
 macuser$ g++ main.cpp -std=c++11
 
-This program ...  
+This program will convert a CSV file to an XML file.
+It will prompt the user for the CSV file name, then prompt the
+user for the separator used in the CSV file.  Finally it will prompt
+the user for the XML file name to write to.  It then will write the
+data to the XML file, using the namespaces for country and city for each
+element.  Upon completion of writing the XML file it will inform the user
+that the XML conversion is complete. 
 *******************************/
 #include <iostream>
 #include <fstream>
@@ -57,6 +63,8 @@ public:
     // public interface to call to convert the data to XML
     void Convert ();
 
+    std::string GetXMLFileName () const;
+
 };
 
 // method declaration
@@ -64,14 +72,25 @@ bool IsGoodInputFile (std::string &);
 
 int main ()
 {
-    std::cout << "--- Welcome to Travis Avey's CSV to XML Converter ---" << std::endl;
+    // output the title of the program
+    std::cout << "--- Welcome to Travis Avey's CSV to XML Converter ---\n\n";
+
+    // declare a string to hold the file name
     std::string fileName;
+
+    // check if we have a good csv file name
     if (IsGoodInputFile (fileName))
     {
+        // Create a ConvertXML object
         ConvertXML convert (fileName);
-    
+        // call method to convert the csv file to xml
         convert.Convert ();
+
+        // output feedback to user that the conversion to xml is complete
+        std::cout << "Finished writing to \"" << convert.GetXMLFileName () 
+                  << "\".\nThank you for using Travis Avey's Converter\n\n";
     }
+    
     return 0;
 }
 
@@ -94,10 +113,13 @@ bool IsGoodInputFile (std::string &inputFile)
     if (!file)
     {
         // inform user of error, using c-error output
-        std::cerr << "There was a problem with opening the file\n";
+        std::cerr << "\nERROR: There was a problem trying to open \"" << inputFile 
+                  << "\".\nCheck file name and try again\n.";
         // return false
         return false;
     }
+
+    std::cout << std::endl;
 
     // close the file and return true
     file.close ();
@@ -163,6 +185,8 @@ void ConvertXML::GetSeparator ()
             break;
     }
 
+    std::cout << std::endl;
+
 }
 
 /*
@@ -211,6 +235,8 @@ void ConvertXML::GetXMLFile ()
         break;
     }
 
+    std::cout << std::endl;
+
     // if user entered a . at the begining
     if (mXmlFile[0] == '.')
         // create a substring removing that .
@@ -219,7 +245,7 @@ void ConvertXML::GetXMLFile ()
     // get the length of the xml file name
     auto len = mXmlFile.length ();
 
-    // if the lenght is less than 4, or doesn't end in .xml
+    // if the length is less than 4, or doesn't end in .xml
     if (len <= 4 || mXmlFile.substr (len -4, len) != ".xml")
         // add the .xml to the end of the file
         mXmlFile += ".xml";
@@ -240,7 +266,7 @@ void ConvertXML::WriteXML ()
         xmlFile.imbue(std::locale(""));
 
         // inform user we are writing to the XML file
-        std::cout << "Wrting XML file\n";
+        std::cout << "Wrting XML file\n\n";
 
         // write the xml prolog
         xmlFile << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -380,8 +406,10 @@ void ConvertXML::Validate (std::string &line)
     {
         // set the line to replacing the '&' with xml equivalent
         line = line.replace (loc, 1, "&amp;");
-        // increment loc to avoid a endless loop
+        // increment loc to begin searching past the current '&' for any others
         loc++;
     }
 }
 
+// this method returns the xml file name
+std::string ConvertXML::GetXMLFileName () const { return mXmlFile; }
