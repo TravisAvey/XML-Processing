@@ -274,23 +274,23 @@ void ConvertXML::WriteXML ()
         // write the comment
         xmlFile << "<!-- Processed by Travis Avey's converter -->\n";
 
+        // init the namespace values for country and city
+        std::string countryNS  = "country";
+        std::string cityNS     = "city";
+
         // write out the root tag, including the namespaces
-        xmlFile << "<countries" <<
+        xmlFile << "<" << countryNS << ":countries" <<
             "\n\txmlns:country=\"http://library.smalltown.usa/country\"" <<
             "\n\txmlns:city=\"http://library.smalltown.usa/city\">\n";
         
-        // init the namespace values for country and city
-        auto countryNS  = "country";
-        auto cityNS     = "city";
-
         // for each country in the data map
         for (const auto &data : mData)
         {
             // store the country from the map
-            auto country = data.first;
-            auto name    = mData[country][0];
-            auto region  = mData[country][1];
-            auto code    = mData[country][2];
+            std::string country = data.first;
+            std::string name    = mData[country][0];
+            std::string region  = mData[country][1];
+            std::string code    = mData[country][2];
             // write the country tag
             xmlFile << "\t<" << countryNS << ":country>\n";
 
@@ -300,7 +300,7 @@ void ConvertXML::WriteXML ()
             xmlFile << "\t\t<" << countryNS << ":code>" << code << "</" << countryNS << ":code>\n"; 
 
             // write the cities opening tag
-            xmlFile << "\t\t<" << countryNS << ":cities>\n";
+            xmlFile << "\t\t<" << cityNS << ":cities>\n";
 
             // init a counter, start at 3 for the city information
             int i = 3;
@@ -308,9 +308,9 @@ void ConvertXML::WriteXML ()
             while (i <mData[country].size ())
             {
                 // store the city, district, and population for the current city
-                auto city       = mData[country][i++];
-                auto district   = mData[country][i++];
-                auto population = std::stoi (mData[country][i++]);
+                std::string city       = mData[country][i++];
+                std::string district   = mData[country][i++];
+                int population = std::stoi (mData[country][i++]);
                 // validate the city && district
                 Validate (city);
                 Validate (district);
@@ -326,12 +326,12 @@ void ConvertXML::WriteXML ()
                 xmlFile << "\t\t\t</" << cityNS << ":city>\n";
             }
             // close cities tag
-            xmlFile << "\t\t</" << countryNS << ":cities>\n"; 
+            xmlFile << "\t\t</" << cityNS << ":cities>\n"; 
             // close the country tag
             xmlFile << "\t</" << countryNS << ":country>\n";
         }   
         // close the countries tag
-        xmlFile << "</countries>\n";
+        xmlFile << "</" << countryNS << ":countries>\n";
     }
     // close the file
     xmlFile.close ();
@@ -402,7 +402,7 @@ void ConvertXML::Validate (std::string &line)
     auto loc = 0;
 
     // while we can find an '&' in the string
-    while ( (loc = line.find('&', loc)) != std::string::npos)
+    while ((loc = line.find('&', loc)) != std::string::npos)
     {
         // set the line to replacing the '&' with xml equivalent
         line = line.replace (loc, 1, "&amp;");
