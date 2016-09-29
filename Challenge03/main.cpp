@@ -38,7 +38,7 @@ private:
     std::vector<std::string> mCountries;
     // the map to store all the data for each country
     // country name is the key, and a vector containing all the data
-    std::map<std::string, std::vector<std::string> > mData;
+    std::map<std::string, std::vector<std::string> > mCountriesMap;
 
     // the input file name
     std::string mInputFile;
@@ -57,8 +57,11 @@ private:
     void Validate (std::string &);
 
 public:
-    // constructor
-    ConvertXML (std::string);
+    /*
+        Public constructor for the ConvertXML class
+        pass in the file name to open 
+    */
+    ConvertXML (const std::string &file) : mInputFile (file) {};
 
     // public interface to call to convert the data to XML
     void Convert ();
@@ -126,15 +129,6 @@ bool IsGoodInputFile (std::string &inputFile)
     return true;
 }
 
-/*
-    Public constructor for the ConvertXML class
-    pass in the file name to open 
-*/
-ConvertXML::ConvertXML (std::string fileName)
-{
-    // set the private file name
-    mInputFile = fileName;
-}
 
 /*
     This method calls the methods required to convert
@@ -284,13 +278,13 @@ void ConvertXML::WriteXML ()
             "\n\txmlns:city=\"http://library.smalltown.usa/city\">\n";
         
         // for each country in the data map
-        for (const auto &data : mData)
+        for (const auto &data : mCountriesMap)
         {
             // store the country from the map
             std::string country = data.first;
-            std::string name    = mData[country][0];
-            std::string region  = mData[country][1];
-            std::string code    = mData[country][2];
+            std::string name    = mCountriesMap[country][0];
+            std::string region  = mCountriesMap[country][1];
+            std::string code    = mCountriesMap[country][2];
             // write the country tag
             xmlFile << "\t<" << countryNS << ":country>\n";
 
@@ -305,12 +299,12 @@ void ConvertXML::WriteXML ()
             // init a counter, start at 3 for the city information
             int i = 3;
             // loop through the rest of the country data
-            while (i <mData[country].size ())
+            while (i <mCountriesMap[country].size ())
             {
                 // store the city, district, and population for the current city
-                std::string city       = mData[country][i++];
-                std::string district   = mData[country][i++];
-                int population = std::stoi (mData[country][i++]);
+                std::string city       = mCountriesMap[country][i++];
+                std::string district   = mCountriesMap[country][i++];
+                int population = std::stoi (mCountriesMap[country][i++]);
                 // validate the city && district
                 Validate (city);
                 Validate (district);
@@ -344,7 +338,7 @@ void ConvertXML::WriteXML ()
 bool ConvertXML::CountryExists (const std::string &data)
 {
     // ternary operator: true if we find the country, false otherwise
-    return mData.find (data) == mData.end() ? false : true;
+    return mCountriesMap.find (data) == mCountriesMap.end() ? false : true;
 }
 
 /*
@@ -382,13 +376,13 @@ void ConvertXML::ExtractData ()
         // check if we already have this country
         if (!CountryExists (currentCountry))
             // if not, then add the vector to the country map
-            mData[currentCountry] = line;
+            mCountriesMap[currentCountry] = line;
         // else we already have this country, so just add the cities
         else
             // loop from 3 (city name) to 5 (population)
             for (int i=3; i<=5; ++i)
                 // add that data to the currenty country's vector
-                mData[currentCountry].push_back (line[i]);
+                mCountriesMap[currentCountry].push_back (line[i]);
     }
 }
 
