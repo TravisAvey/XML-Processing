@@ -106,10 +106,10 @@ void SaxHandler::startElement (const XMLCh * const uri,
 
      // if the tag is country
     if (std::strcmp (tag, "country") == 0)
-    {
         inCountry = true;  
-    }
-    else if (std::strcmp (tag, "city") == 0)
+    else if (std::strcmp (tag, "name") == 0 && inCountry)
+        inCountryName = true;
+    else if (std::strcmp (tag, "city") == 0 && inCountry)
         inCity = true;
     else if (std::strcmp (tag, "name") == 0 && inCity)
         inCityName = true;
@@ -163,6 +163,8 @@ void SaxHandler::endElement (const XMLCh * const uri,
         seenCityName = false;
         addedCountry = false;
     }
+    else if (inCountry && inCountryName && std::strcmp (tag, "name") == 0)
+        inCountryName = false;
     else if (inCityName && std::strcmp (tag, "name") == 0)
     {
         inCityName = false;
