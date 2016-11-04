@@ -257,7 +257,7 @@ void SaxHandler::AddReligion (const char *religion)
 void SaxHandler::XMlHeader (std::fstream &file)
 {
     // output the xml tag
-    file << "<?xml version=\"1.0\"?>" << std::endl;
+    file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
 
     // output the required comment
     file << "<!--" << std::endl;
@@ -311,11 +311,9 @@ void SaxHandler::CreateCitiesXML ()
     // output the cities tag
     cityXML << "<cities>\n";
 
-    // for each city in the cites map 
-    for (const auto &city : mCities)
+    // for each country in the country vector
+    for (const auto &country : mCountries)
     {
-        // get the country from map
-        std::string country = city.first;
         // loop through the cities for the country
         for (int i=0; i<mCities[country].size (); ++i)
         {
@@ -349,12 +347,9 @@ void SaxHandler::CreateReligionsXML ()
     // output the open tag
     religionXML << "<religions>\n";
 
-    // for reach religion in the religions map
-    for (const auto &religion : mReligions)
+    // for reach country in the countries vector
+    for (const auto &country : mCountries)
     {
-        // grab the country for the religion
-        std::string country = religion.first;
-
         // output the country open tag
         religionXML << "\t<country>\n";
         // output the country namd
@@ -385,6 +380,9 @@ bool Init (SaxHandler *);
 
 int main ()
 {
+    // output welcome
+    std::cout << "-------- Welcome to Travis Avey's Sax Parser --------\n\n";
+
     // create to SaxHandler object
     auto *handler = new SaxHandler ();
 
@@ -397,10 +395,17 @@ int main ()
         return 1;
     }
 
+    // output info we are writing to the files
+    std::cout << "Writing parsed data from modial-3.0.xml to files:\n";
+    std::cout << "\tcountry.xml\n\tcities.xml\n\treligions.xml\n\n";
+
     // call methods to create the xml files
     handler->CreateCountryXML ();
     handler->CreateCitiesXML ();
     handler->CreateReligionsXML ();
+
+    // output success
+    std::cout << "Writing to files completed successfully.\n";
     
     // free up memory
     delete handler;
@@ -473,7 +478,6 @@ bool Init (SaxHandler *handler)
 
     // free up memory
     delete parser;
-    delete handler;
 
     // getting to this point means everything was successful, return true
     return true;
