@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+<xs:schema
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.ret.com/feed"
+	xmlns:ret="http://www.ret.com/feed"
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified"
+	>
+	<!--
+		1.  The element ret
+			1.3 can have 0 or more feed elements
+			1.4 last element is a required do-copyright element
+	-->
+	<xs:element name="ret">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element target="ret:feedType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="doc-copyright" minOccurs="1" maxOccurs="1" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<!--
+		2. The element feed
+			2.1 Feed starts with a required source, appears only once
+			2.2 Second element is an optional feed-desc, can only appear once
+			2.3 Third optional element is the info, can only appear once
+			2.4 The last element is a required stories element, must appear once
+	-->
+	<xs:complexType name="feedType">
+		<xs:sequence>
+			<xs:element name="source" type="ret:sourceType" minOccurs="1" />
+			<xs:element name="feed-desc" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="info" minOccurs="0" maxOccurs="1" />
+			<xs:element name="stories" minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!--
+		3. The element source
+			3.1 Has a required name element, must appear once
+			3.2 Has a required url element, must appear once
+			  3.2.1 These two elements can appear in any order
+	-->
+	<xs:complexType name="sourceType">
+		<xs:all>
+			<xs:element name="name" minOccurs="1" />
+			<xs:element name="url" minOccurs="1" />
+		</xs:all>
+	</xs:complexType>
+	
+	<!--
+		4. The element feed-desc
+			4.1 Contains atleast 1 par element, may contain more than one
+	-->
+	<xs:complexType name="feedDescType">
+		<xs:element name="par" minOccurs="1" maxOccurs="unbounded" />
+	</xs:complexType>
+	
+	<!--
+		5. The element stories
+			5.1 contains 0 or more story elements
+	-->
+	<xs:complexType name="storiesType">
+		<xs:element name="story" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:complexType>
+	
+	<!--
+		6. The element story
+			6.1 Has an enumerated attribute update that can have true, false,
+			    or unknown.  Default is set to true
+			6.2 First element is title, must appear once
+			6.3 Second element is url, must appear once
+			6.4 Third element is preview, must appear once
+			6.5 Next is an optional content element, but can only appear once
+			6.6 Next is an optional video element, can only appear once
+			6.7 Last is an optional publication-date element, can only appear once
+	-->
+	<xs:complexType name="storyType">
+		<xs:attribute name="updated">
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="true" />
+				<xs:enumeration value="false" />
+				<xs:enumeration value="unknown" />
+			</xs:restriction>
+		</xs:attribute>
+		<xs:element name="title" minOccurs="1" />
+		<xs:element name="url" minOccurs="1" />
+		<xs:element name="preview" minOccurs="1" />
+		<xs:element name="content" minOccurs="0" maxOccurs="1" />
+		<xs:element name="video" minOccurs="0" maxOccurs="1" />
+		<xs:element name="publication-date" minOccurs="0" maxOccurs="1" />
+	</xs:complexType>
+</xs:schema>

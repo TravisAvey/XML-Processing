@@ -1,0 +1,186 @@
+<!--
+	Travis Avey
+	CSCI 3020 Section W1
+	Fall 2016
+	Assignment 4
+	
+	Programmed on Mac OS X with jEdit
+-->
+
+<!--
+	1.1 The element ret is the root. It must have the attribute version of 1.0
+	1.2 The element has a required attribute of the date, which is the date
+		of the feed.
+	1.3 The element can have 0 or more feed elements
+	1.4	The element's last element is required to have the doc-copyright element,
+		which is the copyright statement for the company
+-->
+<!ELEMENT ret (feed*, doc-copyright) >
+<!ATTLIST ret version CDATA #FIXED "1.0" >
+<!ATTLIST ret date CDATA #REQUIRED >
+
+<!--
+	2.1 This element requries a source element that is first and appears only once
+	2.2	The second element is the feed-desc, which is optional.  If it is used
+		it may only bue used once.
+	2.3 The third element is an optional info element.  If it is used it can only
+		be used once.
+	2.4 The last element is required and can be used only once.  It is a list
+		of feed stories
+-->
+<!ELEMENT feed (source, feed-desc?, info?, stories) >
+
+<!--
+	3.1   This element requires a name element, only once
+	3.2   This element also requires an url element, only once.
+	3.2.1 These elements can appear in any order
+-->
+<!ELEMENT source ((name, url) | (url, name)) >
+
+<!--
+	4.1	This element contains 1 or more par elements
+-->
+<!ELEMENT feed-desc (par+) >
+
+<!--
+	5.1 This element may contain 0 or more story elements
+-->
+<!ELEMENT stories (story*) >
+
+<!--
+	6.1   This element contains an attribute that represents if the story was updated
+		  since the story was downloaded.  The values can be true, false, or uknown,
+		  the default is true
+	6.2   The first element must be one title element
+	6.3   The second element must be the url, linking to the story
+	6.4   The third element must be the preview, which is a short summary of the
+		  story.
+	6.5   This element has an optional content element, it may only appear once.
+	6.6   This element also has an optional video element, it may only appear once
+		  and would be a link to an optional video
+	6.6.1 The content and video elements order does not matter
+	6.7   The last element is an optional publication-date element.  If used, it
+		  can only appear once
+-->
+<!ELEMENT story (title, url, preview, 
+				((content?, video?) | (video?, content?)), publication-date?) >
+<!ATTLIST story updated (true | false | unknown) "true" >
+
+<!--
+	7.1 The title element can only contain text, the title of the story
+-->
+<!ELEMENT title (#PCDATA) >
+
+<!--
+	8.1  This element can contain text, break, center, bold, or italic elements
+-->
+<!ELEMENT preview (#PCDATA | break | center | bold | italic)* >
+
+<!--
+	9.1 This element can contain 0 or more par elements that are paragraphs of
+		of text
+-->
+<!ELEMENT content (par*) >
+
+<!--
+	10.1  This element can only contain text
+-->
+<!ELEMENT video (#PCDATA) >
+
+<!--
+	11.1 This element can only contain text
+-->
+<!ELEMENT publication-date (#PCDATA) >
+
+<!--
+	12.1 This element can contain text, break, center, bold, or italic elements
+-->
+<!ELEMENT par (#PCDATA | break | center | bold | italic)* >
+
+
+<!--
+	13.1   This element may contain an optional updated element, may be used only
+		   once.  This represents the last day/time the feed was updated
+	13.2   This element may contain an optional copyright element, may be used only
+		   once.  This represents copyright holder of the feed
+	13.3   This element may contain an optional location element, may be used only
+		   once.  This represents the physical location of the company with the
+		   feed
+	13.3.1 Any of these elements can appear in any order and all are optional
+-->
+<!ELEMENT info (  (updated?, ((copyright?, location?) | (location?, copyright?)))
+				| (copyright?, ((updated?, location?) | (location?, updated?)))
+				| (location?, ((updated?, copyright?) | (copyright?, updated?)))) >
+				
+<!--
+	14.1 This element can only contain text
+-->
+<!ELEMENT updated (#PCDATA) >
+
+<!--
+	15.1 This element can only contain text
+-->
+<!ELEMENT copyright (#PCDATA) >
+
+<!--
+	16.1 This element can only contain text
+-->
+<!ELEMENT location (#PCDATA) >
+
+<!--
+	17.1 This element has a required of legal state-ment attribute that must be 
+		 set to "This feed and its format is copryright RET 2016"
+	17.2 This element is an empty element
+-->
+<!ELEMENT doc-copyright EMPTY >
+<!ATTLIST doc-copyright legal-statement CDATA #FIXED 
+	"This feed and its format is copyright RET 2016" >
+	
+<!--
+	18.1 This element is an empty element, represents a line break in text
+-->
+<!ELEMENT break EMPTY>
+
+<!--
+	19.1 This element can contain text, break elements, bold elements, or italic
+		 elements. Represents center format of text
+-->
+<!ELEMENT center (#PCDATA | break | italic | bold)* >
+
+<!--
+	20.1 This element can contain text, break elements, center elements, or italic
+		 elements. Represents bold text
+-->
+<!ELEMENT bold (#PCDATA | break | center | italic)* >
+
+<!--
+	21.1 This element can contain text, break elements, center elements, bold
+		 elements.  Represents italic text
+-->
+<!ELEMENT italic (#PCDATA | break | center | bold)* >
+
+<!--
+	22.1 This element can only contain text
+-->
+<!ELEMENT name (#PCDATA) >
+
+<!-- 
+	23.1 This element can only contain text
+-->
+<!ELEMENT url (#PCDATA) >
+
+<!--
+	24.1   The author entity is my name
+	24.2   The company entity is the company's name
+	24.3   The homeurl entity is the company's web address
+	24.4   The nbsp entity is a non-breaking space: &#160;
+	24.5   The cents entity is a cent sign
+	24.6   The copyright entity is the copyright sign
+	24.6.1 The cents and copyright entities are encoded as ASCII text
+-->
+<!ENTITY author "Travis Avey" >
+<!ENTITY company "Read Everything Today" >
+<!ENTITY homeurl "http://www.readeverythingtoday.com" >
+<!ENTITY nbsp "&#160;" >
+<!ENTITY cents "&#162;" >
+<!ENTITY copyright "&#169;" >
