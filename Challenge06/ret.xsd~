@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
 <xs:schema
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.ret.com/feed"
@@ -85,16 +85,33 @@
 	--> 
 	<xs:complexType name="storyType">
 		<xs:sequence>
+		
+			<!--
+				7. The element title
+					7.1 can contain text
+					7.2 contains at least three characters
+					7.3 must begin with a capital letter
+			-->
 			<xs:element name="title" minOccurs="1">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="[A-Z]\w{2,}" />
+						<xs:minLength value="3" />
 					</xs:restriction> 
 				</xs:simpleType>
 			</xs:element>
+			
+			
 			<xs:element name="url" minOccurs="1" />
-			<xs:element name="preview" type="ret:mixedType" minOccurs="1" />
-			<xs:element name="content" type="ret:mixedType" minOccurs="0" maxOccurs="1" />
+			<xs:sequence>
+				<xs:element name="preview" type="ret:mixedType" minOccurs="1" />
+			</xs:sequence>
+			<xs:element name="content" minOccurs="0" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="par" type="ret:mixedType" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			
 			<!--
 				10. The element video
@@ -126,16 +143,6 @@
 		
 	</xs:complexType>
 	
-	<!--
-		7. The element title
-			7.1 can contain text
-			7.2 contains at least three characters
-			7.3 must begin with a capital letter
-	-->
-	<xs:element name="titleType">
-		
-	</xs:element>
-	
 	<!-- Mixed Type is used for the following: -->
 	
 	<!--
@@ -153,18 +160,12 @@
 	-->
 	<xs:complexType name="mixedType" mixed="true">
 		<xs:choice minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="break" type="xs:string" />
-			<xs:element name="center" type="xs:string" />
 			<xs:element name="bold" type="xs:string" />
 			<xs:element name="italic" type="xs:string" />
+			<xs:element name="break">
+				<xs:complexType />
+			</xs:element>
 		</xs:choice>
 	</xs:complexType>
-	
-
-	<xs:element name="videoType">
-		
-	</xs:element>
-	
-
 	
 </xs:schema>
