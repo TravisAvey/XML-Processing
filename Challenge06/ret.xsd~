@@ -88,7 +88,7 @@
 			<xs:element name="title" minOccurs="1">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="[A-Z](.*)" />
+						<xs:pattern value="[A-Z]\w{2,}" />
 					</xs:restriction> 
 				</xs:simpleType>
 			</xs:element>

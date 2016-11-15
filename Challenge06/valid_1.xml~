@@ -8,10 +8,11 @@
 	Programmed on Mac OS X with jEdit
 -->
 
-<ret
-	xmlns="http://www.w42.org/facet_ex"
+<ret 
+	xmlns="http://www.ret.com/feed"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.w42.org/facet_ex ret.xsd">
+	xsi:schemaLocation="http://www.ret.com/feed ret.xsd"
+	>
 	<feed>
 		<source>
 			<name>Android Developer Blog</name>
