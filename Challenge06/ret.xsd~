@@ -9,13 +9,24 @@
 	<!--
 		1.  The element ret
 			1.3 can have 0 or more feed elements
-			1.4 last element is a required do-copyright element
+			1.4 last element is a required doc-copyright element
 	-->
 	<xs:element name="ret">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="feed" type="ret:feedType" minOccurs="0" maxOccurs="unbounded"/>
-				<xs:element name="doc-copyright" minOccurs="1" maxOccurs="1" />
+				<!--
+					17. The doc-copyright element
+						17.1 has an attribute legal-statement and must have the value of
+							 This feed and its format is copyright RET 2016
+						17.2 This is an empty element
+				-->
+				<xs:element name="doc-copyright" minOccurs="1">
+					<xs:complexType>
+					<xs:attribute name="legal-statement" type="xs:string" use="required"
+						fixed="This feed and its format is copyright RET 2016"/>
+					</xs:complexType>
+				</xs:element>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -42,7 +53,7 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="info" minOccurs="0" maxOccurs="1" />
+			<xs:element name="info" type="ret:infoType" minOccurs="0" maxOccurs="1" />
 			<xs:element name="stories" type="ret:storiesType" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
@@ -56,8 +67,33 @@
 	-->
 	<xs:complexType name="sourceType">
 		<xs:all>
-			<xs:element name="name" minOccurs="1" />
-			<xs:element name="url" minOccurs="1" />
+				
+			<!--
+				22. The name element
+					22.1 Can only contain text
+					22.2 Any string is legal
+					22.3 Cannot be empty
+			-->
+			<xs:element name="name" minOccurs="1"> 
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			
+			<!--
+				23. The url element
+					23.1 url must contain a URI
+					23.2 Cannot be empty
+			-->
+			<xs:element name="url" minOccurs="1"> 
+				<xs:simpleType>
+					<xs:restriction base="xs:anyURI">
+						<xs:minLength value="1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
 		</xs:all>
 	</xs:complexType>
 	
@@ -118,13 +154,8 @@
 					10.1 Must contain a URI
 					10.1.1 link to a video
 			-->
-			<xs:element name="video" minOccurs="0" maxOccurs="1">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="URI" type="xs:string" />
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
+			<xs:element name="video" minOccurs="0" maxOccurs="1" type="xs:anyURI" />
+	
 			<!--
 				11. The publication-date element
 				11.1 must have a proper date value
@@ -166,6 +197,45 @@
 				<xs:complexType />
 			</xs:element>
 		</xs:choice>
+	</xs:complexType>
+	
+	<!--
+		13. The element info
+			13.1 Has an optional updated element, can only appear once
+			13.2 Has an optional copyright element, can only appear once
+			13.3 Has an optional location element, can only appear once
+				13.3.1 These can appear in any order
+	-->
+	<xs:complexType name="infoType">
+		<xs:all>
+			<!--
+				14. The updated element
+					14.1 must have a proper date and time format
+			-->
+			<xs:element name="updated" minOccurs="0" type="xs:dateTime" />
+			<!--
+				15. The copyright element
+					15.1 can only contain text, can't be empty
+			-->
+			<xs:element name="copyright" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<!--
+				16. The location element
+					16.1 can only contain text, can't be empty
+			-->
+			<xs:element name="location" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:all>
 	</xs:complexType>
 	
 </xs:schema>
