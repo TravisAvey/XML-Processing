@@ -25,7 +25,7 @@
 				<xs:element name="feed" type="ret:feedType" minOccurs="0" maxOccurs="unbounded"/>
 				<!--
 					17. The doc-copyright element
-						17.1 has an attribute legal-statement and must have the value of
+						17.1 The element doc-copyright must have the text between the start tag and end tag:
 							 This feed and its format is copyright RET 2016
 						17.2 This is an empty element
 				-->
@@ -56,9 +56,15 @@
 				4. The element feed-desc
 					4.1 Contains atleast 1 par element, may contain more than one
 			-->
-			<xs:element name="feed-desc" minOccurs="0" maxOccurs="1">
+			<xs:element name="feed-desc" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
+						
+						<!-- 
+							12. The par element
+								12.1 can contain text, break, center, bold, italic elements
+							This element is using the reusable type mixedType
+						-->
 						<xs:element name="par" type="ret:mixedType" minOccurs="1" maxOccurs="unbounded" />
 					</xs:sequence>
 				</xs:complexType>
@@ -139,17 +145,38 @@
 			<xs:element name="title" minOccurs="1">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="^[A-Z](.)*" />
+						<xs:pattern value="\s*[A-Z](.)*\s*" />
 						<xs:minLength value="3" />
 					</xs:restriction> 
 				</xs:simpleType>
 			</xs:element>
 			
+			<!--
+				23. The element url
+					23.1 Must contain a URI
+					23.2 Cannot be empty
+			-->
+			<xs:element name="url" minOccurs="1">
+				<xs:simpleType>
+					<xs:restriction base="xs:anyURI">
+						<xs:minLength value="1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
 			
-			<xs:element name="url" minOccurs="1" />
+			<!--
+				8. The element preview
+					8.1 The element preview can contain text, break elements, bold,
+						italic, and center elements
+				This element is using a reusable mixedType
+			-->
 			<xs:sequence>
 				<xs:element name="preview" type="ret:mixedType" minOccurs="1" />
 			</xs:sequence>
+			<!--
+				9. The element content
+					9.1 The element content contains 0 or more par elements
+			-->
 			<xs:element name="content" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
@@ -161,7 +188,7 @@
 			<!--
 				10. The element video
 					10.1 Must contain a URI
-					10.1.1 link to a video
+					10.1.1 link to a video, or anyplace
 			-->
 			<xs:element name="video" minOccurs="0" type="xs:anyURI" />
 	
@@ -173,62 +200,7 @@
 		</xs:sequence>
 	</xs:complexType>
 	
-	<!-- Mixed Type is used for the following: -->
 	
-	<!--
-		8. The element preview
-			8.1 The element preview can contain text, break elements, bold,
-				italic, and center elements
-	-->
-	<!--
-		9. The element content
-			9.1 The element content contains 0 or more par elements
-	-->
-	<!-- 
-		12. The par element
-			12.1 can contain text, break, center, bold, italic elements
-	-->
-	<xs:complexType name="mixedType" mixed="true">
-		<xs:choice minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="center" type="ret:centerType" />
-			<xs:element name="bold" type="ret:boldType" />
-			<xs:element name="italic" type="ret:italicType" />
-			<xs:element name="break">
-				<xs:complexType />
-			</xs:element>
-		</xs:choice>
-	</xs:complexType>
-	
-		<xs:complexType name="boldType" mixed="true">
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="center" type="ret:centerType" />
-				<xs:element name="italic" type="ret:italicType" />
-				<xs:element name="break">
-					<xs:complexType />
-				</xs:element>
-			</xs:choice>
-		</xs:complexType>
-
-	
-		<xs:complexType name="centerType" mixed="true">
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="bold" type="ret:boldType" />
-				<xs:element name="italic" type="ret:italicType" />
-				<xs:element name="break">
-					<xs:complexType />
-				</xs:element>
-			</xs:choice>
-		</xs:complexType>
-	
-		<xs:complexType name="italicType" mixed="true">
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="center" type="ret:centerType" />
-				<xs:element name="bold" type="ret:boldType" />
-				<xs:element name="break">
-					<xs:complexType />
-				</xs:element>
-			</xs:choice>
-		</xs:complexType>
 	
 	
 	<!--
@@ -269,5 +241,57 @@
 			</xs:element>
 		</xs:all>
 	</xs:complexType>
+	
+	<!-- Mixed Type, a reusable complex type -->
+	<xs:complexType name="mixedType" mixed="true">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="center" type="ret:centerType" />
+			<xs:element name="bold" type="ret:boldType" />
+			<xs:element name="italic" type="ret:italicType" />
+			<xs:element name="break" type="ret:breakType" />
+		</xs:choice>
+	</xs:complexType>
+	
+	<!--
+		20. The element bold
+			20.1 This can contain text, break, center, italic elements
+	-->
+	<xs:complexType name="boldType" mixed="true">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="center" type="ret:centerType" />
+			<xs:element name="italic" type="ret:italicType" />
+			<xs:element name="break" type="ret:breakType" />
+		</xs:choice>
+	</xs:complexType>
+
+	<!--
+		19. The element center
+			19.1 This can contain text, break, bold, italic elements
+	-->
+	<xs:complexType name="centerType" mixed="true">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="bold" type="ret:boldType" />
+			<xs:element name="italic" type="ret:italicType" />
+			<xs:element name="break" type="ret:breakType" />
+		</xs:choice>
+	</xs:complexType>
+	
+	<!--
+		21. The elment italic
+			21.1 This element can contain text, break, bold, center elements
+	-->
+	<xs:complexType name="italicType" mixed="true">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="center" type="ret:centerType" />
+			<xs:element name="bold" type="ret:boldType" />
+			<xs:element name="break" type="ret:breakType" />
+		</xs:choice>
+	</xs:complexType>
+	
+	<!--
+		18. The element break
+			18.1 This is an empty element, represents a line break
+	-->
+	<xs:complexType name="breakType" />
 	
 </xs:schema>

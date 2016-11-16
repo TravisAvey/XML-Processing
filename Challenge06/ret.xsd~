@@ -1,4 +1,12 @@
 <?xml version="1.0"?>
+<!--
+	Travis Avey
+	CSCI 3020 Section W1
+	Fall 2016
+	Assignment 6
+	
+	Programmed on Mac OS X with jEdit
+-->
 <xs:schema
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.ret.com/feed"
@@ -22,10 +30,12 @@
 						17.2 This is an empty element
 				-->
 				<xs:element name="doc-copyright" minOccurs="1">
-					<xs:complexType>
-					<xs:attribute name="legal-statement" type="xs:string" use="required"
-						fixed="This feed and its format is copyright RET 2016"/>
-					</xs:complexType>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="This feed and its format is copyright RET 2016" />
+						</xs:restriction>
+					</xs:simpleType>
+					
 				</xs:element>
 			</xs:sequence>
 		</xs:complexType>
@@ -49,11 +59,11 @@
 			<xs:element name="feed-desc" minOccurs="0" maxOccurs="1">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="par" type="ret:mixedType" minOccurs="0" maxOccurs="unbounded" />
+						<xs:element name="par" type="ret:mixedType" minOccurs="1" maxOccurs="unbounded" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="info" type="ret:infoType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="info" type="ret:infoType" minOccurs="0" />
 			<xs:element name="stories" type="ret:storiesType" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
@@ -110,8 +120,6 @@
 	
 	<!--
 		6. The element story
-			6.1 Has an enumerated attribute update that can have true, false,
-			    or unknown.  Default is set to true
 			6.2 First element is title, must appear once
 			6.3 Second element is url, must appear once
 			6.4 Third element is preview, must appear once
@@ -131,6 +139,7 @@
 			<xs:element name="title" minOccurs="1">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
+						<xs:pattern value="^[A-Z](.)*" />
 						<xs:minLength value="3" />
 					</xs:restriction> 
 				</xs:simpleType>
@@ -141,7 +150,7 @@
 			<xs:sequence>
 				<xs:element name="preview" type="ret:mixedType" minOccurs="1" />
 			</xs:sequence>
-			<xs:element name="content" minOccurs="0" maxOccurs="1">
+			<xs:element name="content" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="par" type="ret:mixedType" minOccurs="0" maxOccurs="unbounded" />
@@ -154,24 +163,14 @@
 					10.1 Must contain a URI
 					10.1.1 link to a video
 			-->
-			<xs:element name="video" minOccurs="0" maxOccurs="1" type="xs:anyURI" />
+			<xs:element name="video" minOccurs="0" type="xs:anyURI" />
 	
 			<!--
 				11. The publication-date element
 				11.1 must have a proper date value
 			-->
-			<xs:element name="publication-date" type="xs:date" minOccurs="0" maxOccurs="1" />
+			<xs:element name="publication-date" type="xs:date" minOccurs="0" />
 		</xs:sequence>
-		<xs:attribute name="updated" default="true">
-			<xs:simpleType>
-				<xs:restriction base="xs:string" >
-					<xs:enumeration value="true" />
-					<xs:enumeration value="false" />
-					<xs:enumeration value="unknown" />
-				</xs:restriction>
-			</xs:simpleType>
-		</xs:attribute>
-		
 	</xs:complexType>
 	
 	<!-- Mixed Type is used for the following: -->
@@ -191,13 +190,46 @@
 	-->
 	<xs:complexType name="mixedType" mixed="true">
 		<xs:choice minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="bold" type="xs:string" />
-			<xs:element name="italic" type="xs:string" />
+			<xs:element name="center" type="ret:centerType" />
+			<xs:element name="bold" type="ret:boldType" />
+			<xs:element name="italic" type="ret:italicType" />
 			<xs:element name="break">
 				<xs:complexType />
 			</xs:element>
 		</xs:choice>
 	</xs:complexType>
+	
+		<xs:complexType name="boldType" mixed="true">
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="center" type="ret:centerType" />
+				<xs:element name="italic" type="ret:italicType" />
+				<xs:element name="break">
+					<xs:complexType />
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+
+	
+		<xs:complexType name="centerType" mixed="true">
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="bold" type="ret:boldType" />
+				<xs:element name="italic" type="ret:italicType" />
+				<xs:element name="break">
+					<xs:complexType />
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	
+		<xs:complexType name="italicType" mixed="true">
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="center" type="ret:centerType" />
+				<xs:element name="bold" type="ret:boldType" />
+				<xs:element name="break">
+					<xs:complexType />
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	
 	
 	<!--
 		13. The element info
